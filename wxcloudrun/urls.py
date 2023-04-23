@@ -15,7 +15,7 @@ Including another URLconf
 """
 
 from django.conf.urls import include, url
-from apps.message import urls as message_urls
+from wxcloudrun.apps.message import urls as message_urls
 
 urlpatterns = (
     url(r'^api/', include((message_urls, 'message'), namespace='message')),
