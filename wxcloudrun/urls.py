@@ -15,10 +15,11 @@ Including another URLconf
 """
 
 from django.conf.urls import include, url
+from apps.message import urls as message_urls
 from wxcloudrun import views
 
 urlpatterns = (
-    url(r'^api/', include('wxcloudrun.apps.message.urls', namespace='message')),
+    url(r'^api/', include((message_urls, 'message'), namespace='message')),
 
     url(r'(/)?$', views.index),
 )
