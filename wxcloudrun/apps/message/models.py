@@ -38,7 +38,7 @@ class ChainMessageDaily(models.Model):
     msg_id = models.IntegerField(max_length=32, )
     message_time = models.IntegerField(max_length=32, )
     project_name = models.CharField(max_length=128, )
-    msg_date = models.DateTimeField
+    msg_date = models.DateTimeField()
 
     def __str__(self):
         return f'{self.project_name}-{self.msg_id}-{self.message_time}: {self.content}'
