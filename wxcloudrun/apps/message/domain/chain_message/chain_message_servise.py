@@ -38,8 +38,8 @@ class ChainMsgService(object):
                    f'项目名称: {project_message[PROJECT_NAME]}\n' \
                    f'消息日期:{project_message[MSG_DATE]}'
         else:
-            return f'接龙消息写入成功，但项目信息不完整，请按如下格式回复 项目名称 和 消息日期：\n' \
-                   f'{MessageBizType.MAKE_UP_CHAIN_MSG}\n' \
+            return f'接龙消息写入成功，但项目信息不完整，请按如下格式回复 项目名称 和 消息日期：\n\n' \
+                   f'{MessageBizType.MAKE_UP_CHAIN_MSG.value}\n' \
                    f'【项目名称】\n' \
                    f'【消息日期，格式：%m.%d / %Y.%m.%d】'
 
