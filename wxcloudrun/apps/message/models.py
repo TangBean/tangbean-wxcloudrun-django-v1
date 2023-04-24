@@ -35,8 +35,8 @@ class ChainMessageDaily(models.Model):
     content = models.TextField()
     to_user_name = models.CharField(max_length=64, )
     from_user_name = models.CharField(max_length=64, )
-    msg_id = models.IntegerField(max_length=32, )
-    message_time = models.IntegerField(max_length=32, )
+    msg_id = models.BigIntegerField(max_length=32, )
+    message_time = models.BigIntegerField(max_length=32, )
     project_name = models.CharField(max_length=128, )
     msg_date = models.DateTimeField()
 
