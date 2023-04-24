@@ -32,7 +32,7 @@ class ChainMessageDaily(models.Model):
     id = models.AutoField
     created_time = models.DateTimeField(default=datetime.now(), )
     updated_time = models.DateTimeField(default=datetime.now(), )
-    content = models.TextField
+    content = models.TextField()
     to_user_name = models.CharField(max_length=64, )
     from_user_name = models.CharField(max_length=64, )
     msg_id = models.IntegerField(max_length=32, )
