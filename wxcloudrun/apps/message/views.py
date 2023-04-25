@@ -4,7 +4,8 @@ import time
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from wxcloudrun.apps.message.domain.chain_message.chain_message_servise import ChainMsgService
+from wxcloudrun.apps.message.domain.chain_message.chain_message_service import ChainMsgService
+from wxcloudrun.apps.message.domain.chain_message.make_up_chain_message_service import MakeUpChainMessageService
 from wxcloudrun.apps.message.domain.chain_project.chain_project_service import ProjectService
 from wxcloudrun.apps.message.domain.gen_report.gen_report_service import GenReportService
 from wxcloudrun.apps.message.models import Message
@@ -36,7 +37,7 @@ class MessageDispatcherAPIView(APIView):
                 response_content = ChainMsgService(received_message).handle()
 
             elif received_message_biz_type is MessageBizType.MAKE_UP_CHAIN_MSG:
-                response_content = ChainMsgService(received_message).make_up_chain_msg()
+                response_content = MakeUpChainMessageService(received_message).handle()
 
             elif received_message_biz_type is MessageBizType.NEW_CHAIN_PROJECT_MSG:
                 response_content = ProjectService(received_message).handle()
