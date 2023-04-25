@@ -1,8 +1,11 @@
+import logging
 from datetime import datetime
 
 from wxcloudrun.apps.message.models import Message, ChainMessageDaily
 from wxcloudrun.apps.message.domain.chain_message.constants import PROJECT_NAME, MSG_DATE
 from wxcloudrun.common.date_util import is_date_string, parse_date_string
+
+logger = logging.getLogger('log')
 
 
 class MakeUpChainMessageService(object):
@@ -14,9 +17,10 @@ class MakeUpChainMessageService(object):
         project_message = self.parse_project_message()
         lastest_msg = ChainMessageDaily.objects \
             .filter(from_user_name=self.message.from_user_name) \
-            .order_by('-updated_time') \
+            .order_by('-message_time') \
             .first()
-        if not lastest_msg:
+        if lastest_msg is not None:
+            logger.info('lastest_msg:', lastest_msg.id)
             lastest_msg.project_name = project_message[PROJECT_NAME]
             lastest_msg.msg_date = project_message[MSG_DATE]
             lastest_msg.save()
