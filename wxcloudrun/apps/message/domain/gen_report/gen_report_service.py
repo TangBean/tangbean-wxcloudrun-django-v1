@@ -19,6 +19,7 @@ class GenReportService(object):
         report_msg = self.parse_report_msg()
         if report_msg['error_msg']:
             return report_msg['error_msg']
+        logger.info('report_msg', report_msg)
 
         chain_msg_records = ChainMessageDaily.objects.filter(
             project_name=report_msg['project_name'],
@@ -26,7 +27,7 @@ class GenReportService(object):
         )
 
         chain_msg_group_by_user = self.format_chain_msg(chain_msg_records)
-        logger.info(chain_msg_group_by_user)
+        logger.info('chain_msg_group_by_user', chain_msg_group_by_user)
 
         return '开发中...'
 
