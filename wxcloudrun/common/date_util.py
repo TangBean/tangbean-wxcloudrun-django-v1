@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 
 
-def is_date_string(date_string):
+def is_date_string(date_string) -> bool:
     """
     检查字符串是否符合类似"4.25", "5.23", "12.11", "2023.4.12"的日期格式.
     函数返回一个布尔值，表示字符串是否符合该格式
@@ -11,7 +11,7 @@ def is_date_string(date_string):
     return bool(re.match(pattern, date_string))
 
 
-def parse_date_string(date_string):
+def parse_date_string(date_string) -> datetime:
     current_year = datetime.now().year
 
     # Check if the date string contains a year.
