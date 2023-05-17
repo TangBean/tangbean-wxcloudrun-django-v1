@@ -26,7 +26,7 @@ class GenReportService(object):
         )
 
         chain_msg_group_by_user = self.format_chain_msg(chain_msg_records)
-        logger.info('chain_msg_group_by_user', chain_msg_group_by_user)
+        logger.info(chain_msg_group_by_user)
 
         return '开发中...'
 
@@ -66,7 +66,7 @@ class GenReportService(object):
             return {
                 'project_name': project_name,
                 'start_date': start_date,
-                'end_date': end_date,
+                'end_date': end_date
             }
         except ValueError:
             pass
