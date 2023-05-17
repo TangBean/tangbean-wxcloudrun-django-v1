@@ -30,6 +30,7 @@ class MessageDispatcherAPIView(APIView):
                 content=received_data['Content'],
             )
             received_message_biz_type = parse_message_biz_type(received_message.content)
+            logger.info('received_message_biz_type', received_message_biz_type)
 
             response_content = '未知操作，啥都没干'
 
