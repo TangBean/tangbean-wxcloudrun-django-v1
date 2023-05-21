@@ -35,8 +35,8 @@ class ChainMsgService(object):
         new_msg.save()
         if is_valid_project:
             return f'接龙消息写入成功！\n' \
-                   f'项目名称: {project_message[PROJECT_NAME]}\n' \
-                   f'消息日期:{project_message[MSG_DATE]}'
+                   f'【项目名称】{project_message[PROJECT_NAME]}\n' \
+                   f'【消息日期】{project_message[MSG_DATE]}'
         else:
             return f'接龙消息写入成功，但项目信息不完整，请按如下格式回复 项目名称 和 消息日期：\n\n' \
                    f'{MessageBizType.MAKE_UP_CHAIN_MSG.value}\n' \
@@ -99,7 +99,7 @@ class ChainMsgService(object):
                 continue
             key = single_record[:space_pos]
             val = single_record[space_pos+1:].strip()
-            res_dict[key] = val
+            res_dict[key] = val.replace('\n', ' ')
 
             if pos == -1:
                 break
