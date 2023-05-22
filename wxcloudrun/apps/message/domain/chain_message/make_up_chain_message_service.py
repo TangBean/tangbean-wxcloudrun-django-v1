@@ -11,17 +11,17 @@ logger = logging.getLogger('log')
 class MakeUpChainMessageService(object):
 
     def __init__(self, message: Message):
-        self.message = message
+        self._message = message
 
     def handle(self) -> str:
         project_message = self.parse_project_message()
         lastest_msg = ChainMessageDaily.objects \
-            .filter(from_user_name=self.message.from_user_name) \
+            .filter(from_user_name=self._message.from_user_name) \
             .order_by('-message_time') \
             .first()
         if lastest_msg is not None:
             logger.info(lastest_msg.id)
-            lastest_msg.project_name = project_message[PROJECT_NAME]
+            lastest_msg._project_name = project_message[PROJECT_NAME]
             lastest_msg.msg_date = project_message[MSG_DATE]
             lastest_msg.updated_time = datetime.now()
             lastest_msg.save()
@@ -30,8 +30,8 @@ class MakeUpChainMessageService(object):
             return '更新失败，数据不存在'
 
     def parse_project_message(self) -> dict:
-        self.message.content = self.message.content[7:]
-        project_msgs = self.message.content.strip().split('\n')
+        self._message.content = self._message.content[7:]
+        project_msgs = self._message.content.strip().split('\n')
 
         msg_len = len(project_msgs)
         if msg_len < 1:

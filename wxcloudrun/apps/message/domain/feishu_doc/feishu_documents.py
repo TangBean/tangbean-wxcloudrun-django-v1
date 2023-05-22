@@ -14,22 +14,22 @@ logger = logging.getLogger('log')
 class FeishuDocuments(object):
 
     def __init__(self, feishu_auth: FeishuAuth, report_msg: ReportMsg):
-        self.feishu_auth = feishu_auth
-        self.report_msg = report_msg
-        self.title = self._build_document_title()
-        self.document_id = self._create_document()
+        self._feishu_auth = feishu_auth
+        self._report_msg = report_msg
+        self._title = self._build_document_title()
+        self._document_id = self._create_document()
 
     @property
-    def get_title(self):
-        return self.title
+    def title(self):
+        return self._title
 
     @property
-    def get_document_id(self):
-        return self.document_id
+    def document_id(self):
+        return self._document_id
 
     def _build_document_title(self):
-        return f'{self.report_msg.start_date.strftime("%Y%m%d")} - ' \
-               f'{self.report_msg.end_date.strftime("%Y%m%d")}'
+        return f'{self._report_msg.start_date.strftime("%Y%m%d")} - ' \
+               f'{self._report_msg.end_date.strftime("%Y%m%d")}'
 
     def _create_document(self):
         # Define the URL
@@ -37,15 +37,15 @@ class FeishuDocuments(object):
 
         # Define the data to be sent
         data = json.dumps({
-            "folder_token": self.feishu_auth.folder_token,
-            "title": self.title
+            "folder_token": self._feishu_auth.folder_token,
+            "title": self._title
         })
-        logger.info(f'FeishuDocuments._create_document request_data: {data}')
+        logger.debug(f'FeishuDocuments._create_document request_data: {data}')
 
         # Define the headers
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': f'Bearer {self.feishu_auth.get_tenant_access_token()}'
+            'Authorization': f'Bearer {self._feishu_auth.tenant_access_token}'
         }
 
         # Send the POST request

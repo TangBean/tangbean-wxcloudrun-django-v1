@@ -22,4 +22,4 @@ class ChainMsgServiceTest(TestCase):
         project_message = service.parse_project_message()
         service.parse_message_content()
         print(project_message)
-        print(service.message.content)
+        print(service._message.content)

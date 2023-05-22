@@ -6,12 +6,14 @@ class ReportMsg(object):
     start_date: datetime
     end_date: datetime
     error_msg: str
+    from_user_name: str
 
     def __init__(self):
         self.project_name = ''
         self.start_date = datetime.now()
         self.end_date = datetime.now()
         self.error_msg = ''
+        self.from_user_name = ''
 
     def __str__(self):
         return f'project_name: {self.project_name}, ' \

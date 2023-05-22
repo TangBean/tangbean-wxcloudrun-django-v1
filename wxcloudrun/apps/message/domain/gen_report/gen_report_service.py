@@ -6,6 +6,7 @@ from django.db.models import QuerySet
 from wxcloudrun.apps.message.domain.chain_message.constants import FEISHU_DOCUMENT_LINK_PREFIX, \
     FEISHU_FOLDER_LINK_PREFIX
 from wxcloudrun.apps.message.domain.feishu_doc.feishu_auth import FeishuAuth
+from wxcloudrun.apps.message.domain.feishu_doc.feishu_blocks import FeishuBlocks
 from wxcloudrun.apps.message.domain.feishu_doc.feishu_documents import FeishuDocuments
 from wxcloudrun.apps.message.domain.gen_report.gen_report_dto import ReportMsg
 from wxcloudrun.apps.message.models import Message, ChainMessageDaily
@@ -17,13 +18,14 @@ logger = logging.getLogger('log')
 class GenReportService(object):
 
     def __init__(self, message: Message):
-        self.message = message
+        self._message = message
 
     def handle(self) -> str:
         report_msg = self.parse_report_msg()
-        if report_msg.error_msg:
-            return report_msg.error_msg
         logger.info('report_msg: %s', report_msg)
+        error_msg = self._validate_report_msg(report_msg)
+        if error_msg:
+            return error_msg
 
         chain_msgs = ChainMessageDaily.objects.filter(
             project_name=report_msg.project_name,
@@ -35,18 +37,22 @@ class GenReportService(object):
 
         feishu_auth = FeishuAuth(report_msg.project_name)
 
-        feishu_documents = FeishuDocuments(feishu_auth, report_msg)
+        feishu_doc = FeishuDocuments(feishu_auth, report_msg)
+
+        FeishuBlocks(feishu_auth, report_msg, feishu_doc, chain_msg_group_by_user)
 
         return f'接龙报告生成中... (如报告内容不完整，请 1min 后刷新文档)\n' \
-               f'【标题】{feishu_documents.title}\n' \
-               f'【链接】{FEISHU_DOCUMENT_LINK_PREFIX}{feishu_documents.document_id}\n\n' \
+               f'【标题】{feishu_doc.title}\n' \
+               f'【链接】{FEISHU_DOCUMENT_LINK_PREFIX}{feishu_doc.document_id}\n\n' \
                f'【文件夹】{FEISHU_FOLDER_LINK_PREFIX}{feishu_auth.folder_token}'
 
     def parse_report_msg(self) -> ReportMsg:
         res = ReportMsg()
 
-        self.message.content = self.message.content[7:].strip()
-        msg_arr = self.message.content.split('\n')
+        res.from_user_name = self._message.from_user_name
+
+        self._message.content = self._message.content[7:].strip()
+        msg_arr = self._message.content.split('\n')
 
         # Validate message
         msg_len = len(msg_arr)
@@ -79,12 +85,26 @@ class GenReportService(object):
 
         return res
 
-    def format_chain_msg(self, chain_msg_records: QuerySet) -> dict:
+    @staticmethod
+    def _validate_report_msg(report_msg: ReportMsg):
+        if report_msg.error_msg:
+            return report_msg.error_msg
+        if report_msg.start_date > report_msg.end_date:
+            return 'start_date > end_date'
+        if (report_msg.end_date - report_msg.start_date).days >= 14:
+            return 'end_date - start_date >= 14'
+        return None
+
+    @staticmethod
+    def format_chain_msg(chain_msg_records: QuerySet) -> dict:
         res = {}
         chain_msg_list = list(chain_msg_records)
         for chain_msg in chain_msg_list:
             cur_chain_msg_dict = json.loads(chain_msg.content)
             cur_msg_date = chain_msg.msg_date
             for key, value in cur_chain_msg_dict.items():
-                res[key] = {cur_msg_date.strftime('%Y%m%d'): value}
+                if key in res:
+                    res[key][cur_msg_date.strftime('%Y%m%d')] = value
+                else:
+                    res[key] = {cur_msg_date.strftime('%Y%m%d'): value}
         return res

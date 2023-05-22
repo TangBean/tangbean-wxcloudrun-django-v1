@@ -14,7 +14,7 @@ logger = logging.getLogger('log')
 class ChainMsgService(object):
 
     def __init__(self, message: Message):
-        self.message = message
+        self._message = message
 
     def handle(self) -> str:
         project_message = self.parse_project_message()
@@ -24,11 +24,11 @@ class ChainMsgService(object):
             project_message[PROJECT_NAME] = None
             project_message[MSG_DATE] = None
         new_msg = ChainMessageDaily(
-            content=self.message.content,
-            to_user_name=self.message.to_user_name,
-            from_user_name=self.message.from_user_name,
-            msg_id=self.message.msg_id,
-            message_time=self.message.create_time,
+            content=self._message.content,
+            to_user_name=self._message.to_user_name,
+            from_user_name=self._message.from_user_name,
+            msg_id=self._message.msg_id,
+            message_time=self._message.create_time,
             project_name=project_message[PROJECT_NAME],
             msg_date=project_message[MSG_DATE],
         )
@@ -49,13 +49,13 @@ class ChainMsgService(object):
 
         :raises InvalidInputException: If self.message.content not contain '1. '.
         """
-        self.message.content = self.message.content[3:]
-        pos = self.message.content.find('1. ')
+        self._message.content = self._message.content[3:]
+        pos = self._message.content.find('1. ')
         if pos == -1:
             raise InvalidInputException
 
-        project_msgs = self.message.content[:pos].strip().split('\n')
-        self.message.content = self.message.content[pos:]
+        project_msgs = self._message.content[:pos].strip().split('\n')
+        self._message.content = self._message.content[pos:]
 
         msg_len = len(project_msgs)
         if msg_len < 1:
@@ -80,7 +80,7 @@ class ChainMsgService(object):
 
     def parse_message_content(self):
         res_dict = {}
-        msg_cnt = self.message.content
+        msg_cnt = self._message.content
         index = 1
         index_label = '1. '
         while True:
@@ -104,7 +104,7 @@ class ChainMsgService(object):
             if pos == -1:
                 break
 
-        self.message.content = json.dumps(res_dict, ensure_ascii=False)
+        self._message.content = json.dumps(res_dict, ensure_ascii=False)
 
     def project_name_exists(self, project_name) -> bool:
         return ChainProject.objects.filter(project_name=project_name).exists()
