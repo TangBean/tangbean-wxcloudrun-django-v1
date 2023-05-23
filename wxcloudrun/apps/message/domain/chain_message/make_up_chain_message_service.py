@@ -27,7 +27,7 @@ class MakeUpChainMessageService(object):
                 msg_date=project_message[MSG_DATE]
             ).delete()
 
-            lastest_msg._project_name = project_message[PROJECT_NAME]
+            lastest_msg.project_name = project_message[PROJECT_NAME]
             lastest_msg.msg_date = project_message[MSG_DATE]
             lastest_msg.updated_time = datetime.now()
             lastest_msg.save()
