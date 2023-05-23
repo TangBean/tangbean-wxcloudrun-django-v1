@@ -20,7 +20,13 @@ class MakeUpChainMessageService(object):
             .order_by('-message_time') \
             .first()
         if lastest_msg is not None:
-            logger.info(lastest_msg.id)
+            logger.info(f'lastest_msg.id: {lastest_msg.id}')
+
+            ChainMessageDaily.objects.filter(
+                project_name=project_message[PROJECT_NAME],
+                msg_date=project_message[MSG_DATE]
+            ).delete()
+
             lastest_msg._project_name = project_message[PROJECT_NAME]
             lastest_msg.msg_date = project_message[MSG_DATE]
             lastest_msg.updated_time = datetime.now()
