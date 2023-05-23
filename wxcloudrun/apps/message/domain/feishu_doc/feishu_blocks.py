@@ -2,12 +2,12 @@ import json
 import logging
 import requests
 
+from wxcloudrun.apps.message.common.http_client import FeishuHttpClient
 from wxcloudrun.apps.message.domain.chain_message.constants import FEISHU_CREATE_BLOCKS_URL
 from wxcloudrun.apps.message.domain.feishu_doc.feishu_auth import FeishuAuth
 from wxcloudrun.apps.message.domain.feishu_doc.feishu_documents import FeishuDocuments
 from wxcloudrun.apps.message.domain.feishu_doc.templates.daily_logs_report_interpreter import DailyLogsReportInterpreter
 from wxcloudrun.apps.message.domain.gen_report.gen_report_dto import ReportMsg
-from wxcloudrun.common.exceptions import ExternalServerException, HttpRequestException
 from wxcloudrun.common.thread_pool import FEISHU_BLOCKS_THREAD_POOL
 
 logger = logging.getLogger('log')
@@ -75,34 +75,15 @@ class FeishuBlocks(object):
             'Authorization': f'Bearer {self._feishu_auth.tenant_access_token}'
         }
 
-        # Send the POST request
-        response = requests.post(url, data=data, headers=headers)
-
-        # Check the status code
-        if response.status_code == 200:
-            response_json = json.loads(response.content)
-
-            if response_json['code'] != 0:
-                error_msg = f'FeishuBlocks._create_blocks ExternalServerException, ' \
-                            f'code: {response_json["code"]}, ' \
-                            f'msg: {response_json["msg"]}'
-                logger.error(error_msg)
-                raise ExternalServerException(error_msg)
-
-            return {
-                'document_revision_id': response_json['data']['document_revision_id'],
-                'client_token': response_json['data']['client_token']
-            }
-
-        else:
-            error_msg = f'FeishuBlocks._create_blocks HttpRequestException, ' \
-                        f'status_code: {response.status_code}, ' \
-                        f'content: {response.content}'
-            logger.error(error_msg)
-            raise HttpRequestException(error_msg)
+        response = FeishuHttpClient.request('FeishuBlocks._create_blocks', 'POST', url,
+                                            data=data, headers=headers)
+        return {
+            'document_revision_id': response['data']['document_revision_id'],
+            'client_token': response['data']['client_token']
+        }
 
     def _send_finished_msg(self):
-        url = "http://api.weixin.qq.com/cgi-bin/message/custom/send"
+        url = f'http://api.weixin.qq.com/cgi-bin/message/custom/send?from_appid={self._feishu_auth.wechat_appid}'
         data = json.dumps({
               "touser": self._report_msg.from_user_name,
               "msgtype": "text",
@@ -110,4 +91,4 @@ class FeishuBlocks(object):
                     "content": "报告生成完成"
               }
         })
-        requests.post(url, data=data)
+        requests.request('POST', url, data=data)

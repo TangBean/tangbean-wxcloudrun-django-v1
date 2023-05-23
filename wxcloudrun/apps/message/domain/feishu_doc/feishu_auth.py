@@ -1,7 +1,7 @@
 import json
 import logging
-import requests
 
+from wxcloudrun.apps.message.common.http_client import FeishuHttpClient
 from wxcloudrun.apps.message.domain.chain_message.constants import FEISHU_TENANT_ACCESS_TOKEN_URL
 from wxcloudrun.apps.message.models import ChainProject
 
@@ -12,12 +12,17 @@ class FeishuAuth(object):
 
     def __init__(self, project_name: str):
         self._project_name = project_name
-        self._app_id, self._app_secret, self._folder_token = self._get_app_access()
+        self._app_id, self._app_secret, self._folder_token, self._wechat_appid = \
+            self._get_app_access()
         self._tenant_access_token = self._gen_tenant_access_token()
 
     @property
     def folder_token(self):
         return self._folder_token
+
+    @property
+    def wechat_appid(self):
+        return self._wechat_appid
 
     @property
     def tenant_access_token(self) -> str:
@@ -30,7 +35,8 @@ class FeishuAuth(object):
         else:
             return chain_project.feishu_app_id, \
                 chain_project.feishu_app_secret, \
-                chain_project.feishu_folder_token
+                chain_project.feishu_folder_token, \
+                chain_project.wechat_appid
 
     def _gen_tenant_access_token(self) -> str:
         # Define the URL
@@ -47,13 +53,6 @@ class FeishuAuth(object):
             'Content-Type': 'application/json'
         }
 
-        # Send the POST request
-        response = requests.post(url, data=data, headers=headers)
-
-        # Check the status code
-        if response.status_code == 200:
-            response_json = json.loads(response.content)
-            return response_json['tenant_access_token']
-        else:
-            logger.error('FeishuAuth._call_feishu_tenant_access_token Error! status_code: %s',
-                         response.status_code)
+        response = FeishuHttpClient.request('FeishuAuth._call_feishu_tenant_access_token', 'POST', url,
+                                            data=data, headers=headers)
+        return response['tenant_access_token']

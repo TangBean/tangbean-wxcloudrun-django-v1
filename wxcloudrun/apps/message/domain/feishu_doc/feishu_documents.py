@@ -1,12 +1,11 @@
 import json
 import logging
 
-import requests
-
-from wxcloudrun.apps.message.domain.chain_message.constants import FEISHU_CREATE_DOCUMENT_URL
+from wxcloudrun.apps.message.common.http_client import FeishuHttpClient
+from wxcloudrun.apps.message.domain.chain_message.constants import FEISHU_CREATE_DOCUMENT_URL, \
+    FEISHU_UPDATE_PERMISSION_URL
 from wxcloudrun.apps.message.domain.feishu_doc.feishu_auth import FeishuAuth
 from wxcloudrun.apps.message.domain.gen_report.gen_report_dto import ReportMsg
-from wxcloudrun.common.exceptions import HttpRequestException, ExternalServerException
 
 logger = logging.getLogger('log')
 
@@ -16,8 +15,15 @@ class FeishuDocuments(object):
     def __init__(self, feishu_auth: FeishuAuth, report_msg: ReportMsg):
         self._feishu_auth = feishu_auth
         self._report_msg = report_msg
+
+        self._headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self._feishu_auth.tenant_access_token}'
+        }
+
         self._title = self._build_document_title()
         self._document_id = self._create_document()
+        self._update_permissions()
 
     @property
     def title(self):
@@ -42,31 +48,26 @@ class FeishuDocuments(object):
         })
         logger.debug(f'FeishuDocuments._create_document request_data: {data}')
 
-        # Define the headers
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {self._feishu_auth.tenant_access_token}'
-        }
+        response = FeishuHttpClient.request('FeishuDocuments._create_document', 'POST', url,
+                                            data=data, headers=self._headers)
+        return response['data']['document']['document_id']
 
-        # Send the POST request
-        response = requests.post(url, data=data, headers=headers)
+    def _update_permissions(self):
+        # Define the URL
+        url = FEISHU_UPDATE_PERMISSION_URL.format(document_id=self._document_id)
 
-        # Check the status code
-        if response.status_code == 200:
-            response_json = json.loads(response.content)
+        # Define the data to be sent
+        data = json.dumps({
+          "external_access_entity": "open",
+          "security_entity": "anyone_can_view",
+          "comment_entity": "anyone_can_view",
+          "link_share_entity": "anyone_editable",
+          "copy_entity": "anyone_can_view"
+        })
 
-            if response_json['code'] != 0:
-                error_msg = f'FeishuDocuments._create_document ExternalServerException, ' \
-                            f'code: {response_json["code"]}, ' \
-                            f'msg: {response_json["msg"]}'
-                logger.error(error_msg)
-                raise ExternalServerException(error_msg)
+        # Define the params to be sent
+        params = {'type': 'docx'}
 
-            return response_json['data']['document']['document_id']
-
-        else:
-            error_msg = f'FeishuDocuments._create_document HttpRequestException, ' \
-                        f'status_code: {response.status_code}, ' \
-                        f'content: {response.content}'
-            logger.error(error_msg)
-            raise HttpRequestException(error_msg)
+        response = FeishuHttpClient.request('FeishuDocuments._update_permissions', 'PATCH', url,
+                                            params=params, data=data, headers=self._headers)
+        return response['msg']
