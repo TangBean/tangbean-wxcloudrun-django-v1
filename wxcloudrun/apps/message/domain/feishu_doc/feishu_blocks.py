@@ -49,7 +49,6 @@ class FeishuBlocks(object):
             index = index - MAX_CHILDREN_LEN
         self._create_blocks(request_children[0:index])
 
-        self._send_finished_msg()
         logger.info(f'FeishuBlocks.create_blocks finished, '
                     f'document_id: {self._feishu_doc.document_id}')
 
@@ -81,14 +80,3 @@ class FeishuBlocks(object):
             'document_revision_id': response['data']['document_revision_id'],
             'client_token': response['data']['client_token']
         }
-
-    def _send_finished_msg(self):
-        url = f'http://api.weixin.qq.com/cgi-bin/message/custom/send?from_appid={self._feishu_auth.wechat_appid}'
-        data = json.dumps({
-              "touser": self._report_msg.from_user_name,
-              "msgtype": "text",
-              "text": {
-                    "content": "报告生成完成"
-              }
-        })
-        requests.request('POST', url, data=data)

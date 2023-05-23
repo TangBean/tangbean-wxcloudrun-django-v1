@@ -42,7 +42,6 @@ class ChainProject(models.Model):
     feishu_app_id = models.CharField(max_length=64, )
     feishu_app_secret = models.CharField(max_length=64, )
     feishu_folder_token = models.CharField(max_length=64, )
-    wechat_appid = models.CharField(max_length=64, )
 
     def __str__(self):
         return f'{self.id}-{self.project_name}-{self.creator}'

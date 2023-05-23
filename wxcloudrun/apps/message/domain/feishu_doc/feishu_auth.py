@@ -12,17 +12,12 @@ class FeishuAuth(object):
 
     def __init__(self, project_name: str):
         self._project_name = project_name
-        self._app_id, self._app_secret, self._folder_token, self._wechat_appid = \
-            self._get_app_access()
+        self._app_id, self._app_secret, self._folder_token = self._get_app_access()
         self._tenant_access_token = self._gen_tenant_access_token()
 
     @property
     def folder_token(self):
         return self._folder_token
-
-    @property
-    def wechat_appid(self):
-        return self._wechat_appid
 
     @property
     def tenant_access_token(self) -> str:
@@ -35,8 +30,7 @@ class FeishuAuth(object):
         else:
             return chain_project.feishu_app_id, \
                 chain_project.feishu_app_secret, \
-                chain_project.feishu_folder_token, \
-                chain_project.wechat_appid
+                chain_project.feishu_folder_token
 
     def _gen_tenant_access_token(self) -> str:
         # Define the URL
