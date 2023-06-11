@@ -1,6 +1,5 @@
 import logging
 from datetime import time
-from typing import Sequence
 
 from wxcloudrun.apps.message.domain.chain_message_reminder.chain_message_reminder_dto import GetUpData
 from wxcloudrun.apps.message.models import Message
@@ -53,7 +52,7 @@ class ChainMessageReminderService(object):
             get_up_time_msg,
         )
 
-    def _parse_get_up_time_and_log(self) -> (dict[str, GetUpData], set):
+    def _parse_get_up_time_and_log(self) -> (dict, set):
         get_up_content_dict = {}
         format_error_users = set()
 
@@ -117,7 +116,7 @@ class ChainMessageReminderService(object):
         return get_up_content_dict, format_error_users
 
     @staticmethod
-    def _get_unlog_users(get_up_content_dict: dict[str, GetUpData]) -> set:
+    def _get_unlog_users(get_up_content_dict: dict) -> set:
         unlog_users = set()
         for nick, data in get_up_content_dict.items():
             if len(data.get_up_log) < VALID_LOG_MIN_LEN:
@@ -125,7 +124,7 @@ class ChainMessageReminderService(object):
         return unlog_users
 
     @staticmethod
-    def _get_get_up_late_users(get_up_content_dict: dict[str, GetUpData]) -> set:
+    def _get_get_up_late_users(get_up_content_dict: dict) -> set:
         get_up_late_users = set()
         for nick, data in get_up_content_dict.items():
             if GET_UP_LATE_TIME < data.get_up_time:
@@ -157,7 +156,7 @@ class ChainMessageReminderService(object):
             return ''
 
     @staticmethod
-    def _build_get_up_time_msg(get_up_content_dict: dict[str, GetUpData]) -> str:
+    def _build_get_up_time_msg(get_up_content_dict: dict) -> str:
         get_up_time_arr = []
         for key, val in get_up_content_dict.items():
             get_up_time_arr.append(f'{key} {val.get_up_time.strftime("%H:%M")}')
