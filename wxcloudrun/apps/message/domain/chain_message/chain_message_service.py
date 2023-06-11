@@ -4,7 +4,7 @@ from datetime import datetime
 
 from wxcloudrun.apps.message.domain.chain_message.constants import PROJECT_NAME, MSG_DATE
 from wxcloudrun.apps.message.models import Message, ChainProject, ChainMessageDaily
-from wxcloudrun.apps.message.utils import MessageBizType
+from wxcloudrun.apps.message.utils import MessageBizType, parse_message_content
 from wxcloudrun.common.date_util import is_date_string, parse_date_string
 from wxcloudrun.common.exceptions import InvalidInputException
 
@@ -79,31 +79,7 @@ class ChainMsgService(object):
         }
 
     def parse_message_content(self):
-        res_dict = {}
-        msg_cnt = self._message.content
-        index = 1
-        index_label = '1. '
-        while True:
-            msg_cnt = msg_cnt[len(index_label):].strip()
-            index = index + 1
-            index_label = f'\n{index}. '
-            pos = msg_cnt.find(index_label)
-            if pos == -1:
-                single_record = msg_cnt
-            else:
-                single_record = msg_cnt[:pos]
-                msg_cnt = msg_cnt[pos:]
-
-            space_pos = single_record.find(' ')
-            if space_pos == -1:
-                continue
-            key = single_record[:space_pos]
-            val = single_record[space_pos+1:].strip()
-            res_dict[key] = val.replace('\n', ' ')
-
-            if pos == -1:
-                break
-
+        res_dict = parse_message_content(self._message.content)
         self._message.content = json.dumps(res_dict, ensure_ascii=False)
 
     def project_name_exists(self, project_name) -> bool:

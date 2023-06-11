@@ -6,6 +6,8 @@ from rest_framework.views import APIView
 
 from wxcloudrun.apps.message.domain.chain_message.chain_message_service import ChainMsgService
 from wxcloudrun.apps.message.domain.chain_message.make_up_chain_message_service import MakeUpChainMessageService
+from wxcloudrun.apps.message.domain.chain_message_reminder.chain_message_reminder_service import \
+    ChainMessageReminderService
 from wxcloudrun.apps.message.domain.chain_project.chain_project_service import ProjectService
 from wxcloudrun.apps.message.domain.gen_report.gen_report_service import GenReportService
 from wxcloudrun.apps.message.models import Message
@@ -45,6 +47,12 @@ class MessageDispatcherAPIView(APIView):
 
             elif received_message_biz_type is MessageBizType.GEN_REPORT_MSG:
                 response_content = GenReportService(received_message).handle()
+
+            elif received_message_biz_type is MessageBizType.CHAIN_MSG_REMINDER:
+                response_content = ChainMessageReminderService(received_message).handle()
+
+            elif received_message_biz_type is MessageBizType.CHAIN_MSG_REMINDER_LOG:
+                response_content = ChainMessageReminderService(received_message).handle(True)
 
             response_data = {
                 'ToUserName': received_data['FromUserName'],
