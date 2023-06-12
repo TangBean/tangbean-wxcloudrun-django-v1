@@ -34,7 +34,7 @@ class ChainMessageReminderService(object):
     def handle(self, with_get_up_time: bool = False) -> str:
         self._get_up_content_dict, format_error_users = self._parse_get_up_time_and_log()
         if with_get_up_time:
-            get_up_time_msg = self._build_get_up_time_msg(self._get_up_content_dict)
+            get_up_time_msg = self._build_get_up_time_billboard(self._get_up_content_dict)
         else:
             get_up_time_msg = ''
 
@@ -156,12 +156,14 @@ class ChainMessageReminderService(object):
             return ''
 
     @staticmethod
-    def _build_get_up_time_msg(get_up_content_dict: dict) -> str:
+    def _build_get_up_time_billboard(get_up_content_dict: dict) -> str:
         get_up_time_arr = []
-        for key, val in get_up_content_dict.items():
-            get_up_time_arr.append(f'{key} {val.get_up_time.strftime("%H:%M")}')
+        get_up_data_sorted_list = sorted(get_up_content_dict.values())
+        for i in range(len(get_up_data_sorted_list)):
+            item = get_up_data_sorted_list[i]
+            get_up_time_arr.append(f'{i+1}. {item.nick} {item.get_up_time.strftime("%H:%M")}')
         if get_up_time_arr:
-            return '【大家的起床时间】\n' + '\n'.join(get_up_time_arr)
+            return f'今日打卡人数：{len(get_up_time_arr)}，早起时间日志：\n' + '\n'.join(get_up_time_arr)
         else:
             return ''
 
